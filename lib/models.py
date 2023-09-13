@@ -28,7 +28,7 @@ class Restaurant(Base):
     price = Column(Float(), nullable=False)
 
     reviews = relationship('Review', backref=backref('restaurants'))
-    customers = relationship('Customer', secondary=restaurant_customer, back_populates='customers')
+    customers = relationship('Customer  ', secondary=restaurant_customer, back_populates='customers')
 
     def __repr__(self):
         return f"Restaurant ID: {self.id}, " \
