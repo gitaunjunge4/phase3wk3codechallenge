@@ -1,7 +1,5 @@
-from sqlalchemy import func, create_engine
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy import (Column, Integer, String, 
-    Float, ForeignKey, DateTime, Table, MetaData)
+from sqlalchemy import (Column, Integer, String, ForeignKey, Table, MetaData)
 from sqlalchemy.ext.declarative import declarative_base
 
 convention = {
@@ -9,9 +7,9 @@ convention = {
 }
 metadata = MetaData(naming_convention=convention)
 
-
 Base = declarative_base(metadata=metadata)
 
+#association table
 restaurant_customer = Table(
     'restaurant_customer', 
     Base.metadata, 
@@ -20,15 +18,22 @@ restaurant_customer = Table(
     extend_existing=True,
 )
 
+
+#schma for restaurant table
+
 class Restaurant(Base):
     __tablename__ = 'restaurants'
 
     id = Column(Integer(), primary_key=True)
     name = Column(String(), nullable=False)
-    price = Column(Float(), nullable=False)
+    price = Column(Integer(), nullable=False)
 
-    reviews = relationship('Review', backref=backref('restaurants'))
-    customers = relationship('Customer  ', secondary=restaurant_customer, back_populates='customers')
+    reviews = relationship('Review', backref=backref('customer'))
+    customers = relationship(
+        'Customer', 
+        secondary=restaurant_customer, 
+        back_populates='restaurants'
+    )
 
     def __repr__(self):
         return f"Restaurant ID: {self.id}, " \
@@ -42,8 +47,12 @@ class Customer(Base):
     first_name = Column(String(), nullable=False)
     last_name = Column(String(), nullable=False)
 
-    reviews = relationship("Review", backref=backref('customer'))
-    restaurants = relationship('Restaurant', secondary=restaurant_customer, back_populates='restaurants')
+    reviews = relationship("Review", backref=backref('restaurant'))
+    restaurants = relationship(
+        'Restaurant', 
+        secondary=restaurant_customer,
+        back_populates='customers'
+    )
 
     def __repr__(self):
         return f"Restaurant ID: {self.id}, " \
@@ -59,8 +68,18 @@ class Review(Base):
     customer_id = Column(Integer(), ForeignKey("customers.id"))
     restaurant_id = Column(Integer(), ForeignKey("restaurants.id"))
 
+    restaurant = relationship('Restaurant', back_populates='reviews')
+    customer = relationship('Customer', back_populates='customers')
+
     def __repr__(self):
         return f"ReviewID: {self.id}, " \
             + f"Star Rating: {self.star_rating}, " \
             + f"CustomerID: {self.customer_id}, " \
             + f"RestaurantID: {self.restaurant_id}"
+    
+    #returns the Customer intance for this review
+    def customer_review(self):
+        return self.customer
+    
+    def restaurant_review(self):
+        return self.restaurant
