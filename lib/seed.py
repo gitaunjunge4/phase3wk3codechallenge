@@ -4,7 +4,7 @@ import random
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from models import Restaurant, Customer
+from models import Restaurant, Customer, Review
 
 if __name__ == '__main__':
 
@@ -22,7 +22,6 @@ if __name__ == '__main__':
     ]
 
     #generating random data for the Restaurant Table
-    restaurants =[]
     for i in range(14):
         restaurant = Restaurant(
             name = random.choice(restaurant_stores),
@@ -30,16 +29,30 @@ if __name__ == '__main__':
         )
     session.add(restaurant)
     session.commit()
-    restaurants.append(restaurant)
+    restaurants = [x.id for x in session.query(Restaurant)]
     print(restaurants)
 
+
     #generating random data for the Customer Table
-    customers = []
     for i in range(30):
         customer = Customer(
             first_name = fake.first_name(), 
-            last_name = fake.last_name(),
-        )
+            last_name = fake.last_name(),)
     session.add(customer)
     session.commit()
-    customers.append(customer)
+    customers = [x.id for x in session.query(Customer)]
+    print(customers)
+
+
+    #generating random data for the Reviews Table
+    reviews = []
+    for i in range(20):
+        review = Review(
+            star_rating = random.randint(1, 5),
+            customer_id = random.choice(customers),
+            restaurant_id = random.choice(restaurants)
+        )
+        reviews.append(review)
+    session.bulk_save_objects(reviews)
+    session.commit()
+    print(reviews)

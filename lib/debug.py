@@ -8,7 +8,6 @@ from models import Customer, Review, Restaurant
 if __name__ == '__main__':
     
     engine = create_engine('sqlite:///restraurants.db')
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    session = sessionmaker()(bind=engine)
 
     import ipdb; ipdb.set_trace()
